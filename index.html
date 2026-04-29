@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>HI Members — 멤버스 가입 신청</title>
+  <meta name="theme-color" content="#fdfcf0">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #fdfcf0;
+      --card: #ffffff;
+      --accent: #1535c4;
+      --accent-light: #eef2ff;
+      --accent-hover: #1228a0;
+      --text: #1e1047;
+      --text-2: #6b7280;
+      --border: #e5e7eb;
+      --green: #059669;
+      --green-bg: #ecfdf5;
+      --red: #dc2626;
+      --red-bg: #fef2f2;
+      --r: 16px;
+      --r-sm: 10px;
+      --shadow: 0 1px 4px rgba(0,0,0,0.06), 0 2px 12px rgba(0,0,0,0.04);
+    }
+    html { font-size: 16px; -webkit-text-size-adjust: 100%; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Pretendard', 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding-bottom: max(env(safe-area-inset-bottom), 24px);
+    }
+
+    /* ── Header ── */
+    .app-header {
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .app-logo { font-size: 18px; font-weight: 900; color: var(--accent); letter-spacing: -0.5px; }
+    .app-sub { font-size: 12px; color: var(--text-2); font-weight: 500; }
+
+    /* ── Layout ── */
+    .container { max-width: 480px; margin: 0 auto; padding: 0 16px 48px; }
+
+    /* ── Hero ── */
+    .hero { text-align: center; padding: 32px 4px 24px; }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--accent-light); color: var(--accent);
+      font-size: 12px; font-weight: 700; padding: 5px 14px;
+      border-radius: 100px; margin-bottom: 14px; letter-spacing: 0.3px;
+    }
+    .hero-title { font-size: 28px; font-weight: 900; letter-spacing: -1px; line-height: 1.2; margin-bottom: 12px; }
+    .hero-desc { font-size: 14px; color: var(--text-2); line-height: 1.7; }
+
+    /* ── Card ── */
+    .card { background: var(--card); border-radius: var(--r); padding: 20px; box-shadow: var(--shadow); margin-bottom: 14px; }
+    .card-label { font-size: 11px; font-weight: 700; color: var(--accent); letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 14px; }
+
+    /* ── Form fields ── */
+    .fg { margin-bottom: 14px; }
+    .fg:last-child { margin-bottom: 0; }
+    .lbl { display: block; font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+    .lbl .req { color: var(--accent); margin-left: 2px; }
+    .fi {
+      width: 100%; padding: 12px 14px; border: 1.5px solid var(--border);
+      border-radius: var(--r-sm); font-size: 15px; color: var(--text);
+      background: #fff; outline: none; transition: border-color 0.15s;
+      -webkit-appearance: none; font-family: inherit;
+    }
+    .fi:focus { border-color: var(--accent); }
+    .fi::placeholder { color: #c4c4c4; }
+    .fi.err { border-color: var(--red); }
+    textarea.fi { resize: vertical; min-height: 80px; line-height: 1.5; }
+    .fi-hint { font-size: 11px; color: var(--text-2); margin-top: 5px; }
+    .sep { border: none; border-top: 1px solid var(--border); margin: 14px 0; }
+
+    /* ── Benefit items ── */
+    .benefit-list { display: flex; flex-direction: column; gap: 10px; }
+    .benefit-item {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 14px; background: #f9fafb; border-radius: var(--r-sm);
+      border: 1.5px solid var(--border); cursor: pointer; transition: all 0.15s;
+    }
+    .benefit-item.on { background: var(--accent-light); border-color: var(--accent); }
+    .benefit-item input { display: none; }
+    .bcheck {
+      width: 22px; height: 22px; border-radius: 6px; border: 2px solid var(--border);
+      background: #fff; flex-shrink: 0; display: flex; align-items: center;
+      justify-content: center; transition: all 0.15s; margin-top: 1px;
+    }
+    .benefit-item.on .bcheck { background: var(--accent); border-color: var(--accent); }
+    .bcheck-icon { display: none; color: #fff; font-size: 13px; font-weight: 800; line-height: 1; }
+    .benefit-item.on .bcheck-icon { display: block; }
+    .benefit-title { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 3px; }
+    .benefit-desc { font-size: 12px; color: var(--text-2); line-height: 1.5; }
+
+    /* ── Consent radio ── */
+    .consent-opts { display: flex; gap: 10px; margin-top: 8px; }
+    .consent-opt {
+      flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 12px; border: 1.5px solid var(--border); border-radius: var(--r-sm);
+      cursor: pointer; font-size: 14px; font-weight: 600; color: var(--text-2);
+      transition: all 0.15s; background: #f9fafb;
+    }
+    .consent-opt input { display: none; }
+    .consent-opt.on { border-color: var(--accent); background: var(--accent-light); color: var(--accent); }
+
+    /* ── Agree row ── */
+    .agree-row {
+      display: flex; align-items: flex-start; gap: 10px; padding: 14px;
+      background: #f9fafb; border-radius: var(--r-sm); border: 1.5px solid var(--border);
+      cursor: pointer; transition: all 0.15s;
+    }
+    .agree-row.on { background: var(--accent-light); border-color: var(--accent); }
+    .agree-check {
+      width: 22px; height: 22px; border-radius: 6px; border: 2px solid var(--border);
+      background: #fff; flex-shrink: 0; display: flex; align-items: center;
+      justify-content: center; transition: all 0.15s;
+    }
+    .agree-row.on .agree-check { background: var(--accent); border-color: var(--accent); }
+    .agree-check-icon { display: none; color: #fff; font-size: 13px; font-weight: 800; line-height: 1; }
+    .agree-row.on .agree-check-icon { display: block; }
+    .agree-text { font-size: 13px; color: var(--text); line-height: 1.55; }
+    .agree-text strong { font-weight: 700; }
+
+    /* ── Policy link ── */
+    .policy-link-wrap { text-align: center; margin-top: 10px; }
+    .policy-link {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 12px; font-weight: 600; color: var(--accent);
+      text-decoration: none; padding: 6px 14px;
+      background: var(--accent-light); border-radius: 100px;
+    }
+    .policy-link:active { opacity: 0.7; }
+
+    /* ── Error banner ── */
+    .err-banner {
+      background: var(--red-bg); border: 1px solid #fca5a5; border-radius: var(--r-sm);
+      padding: 12px 14px; font-size: 13px; color: var(--red); margin-bottom: 14px; display: none;
+    }
+    .err-banner.show { display: block; }
+
+    /* ── Submit ── */
+    .submit-btn {
+      width: 100%; padding: 16px; background: var(--accent); color: #fff;
+      border: none; border-radius: var(--r-sm); font-size: 16px; font-weight: 800;
+      cursor: pointer; transition: opacity 0.15s; letter-spacing: -0.3px; font-family: inherit;
+    }
+    .submit-btn:active { opacity: 0.85; }
+    .submit-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .footer-note { text-align: center; margin-top: 14px; font-size: 12px; color: var(--text-2); line-height: 1.6; }
+
+    /* ── Loading ── */
+    .loading-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 80px 24px; gap: 14px; }
+    .spinner { width: 32px; height: 32px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Success / Dup ── */
+    .alt-screen { display: none; text-align: center; padding: 56px 24px; }
+    .alt-screen.show { display: block; }
+    .alt-icon { font-size: 64px; margin-bottom: 20px; }
+    .alt-title { font-size: 24px; font-weight: 900; letter-spacing: -0.5px; margin-bottom: 10px; }
+    .alt-desc { font-size: 14px; color: var(--text-2); line-height: 1.7; }
+    .summary-card { background: var(--green-bg); border-radius: var(--r); padding: 20px; margin-top: 24px; text-align: left; }
+    .summary-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; font-size: 13px; border-bottom: 1px solid #d1fae5; }
+    .summary-row:last-child { border-bottom: none; }
+    .summary-label { color: var(--text-2); }
+    .summary-value { font-weight: 700; color: var(--text); }
+
+    /* ── Toast ── */
+    .toast {
+      position: fixed; bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+      left: 50%; transform: translateX(-50%) translateY(80px);
+      background: #1e1047; color: #fff; padding: 12px 20px; border-radius: 100px;
+      font-size: 14px; font-weight: 600; white-space: nowrap; z-index: 999;
+      transition: transform 0.25s; pointer-events: none;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+  </style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="app-logo">HI Members</div>
+  <div class="app-sub">졸업 멤버 전용 혜택</div>
+</header>
+
+<div class="container">
+
+  <!-- Loading -->
+  <div id="loading-screen" class="loading-screen">
+    <div class="spinner"></div>
+    <div style="font-size:14px;color:var(--text-2)">잠시만 기다려주세요</div>
+  </div>
+
+  <!-- Form -->
+  <div id="form-screen" style="display:none">
+    <div class="hero">
+      <div class="hero-badge">🎉 축하드려요!</div>
+      <div class="hero-title">HI Members<br>가입 신청</div>
+      <div class="hero-desc">HI여성의원에서 임신에 성공하신 것을<br>진심으로 축하드립니다.<br>졸업 후에도 다양한 혜택으로 함께해요.</div>
+    </div>
+
+    <!-- 기본 정보 -->
+    <div class="card">
+      <div class="card-label">기본 정보</div>
+      <div class="fg">
+        <label class="lbl" for="f-name">이름 <span class="req">*</span></label>
+        <input type="text" class="fi" id="f-name" placeholder="홍길동" autocomplete="name">
+      </div>
+      <div class="fg">
+        <label class="lbl" for="f-phone">연락처 <span class="req">*</span></label>
+        <input type="tel" class="fi" id="f-phone" placeholder="010-0000-0000" autocomplete="tel" inputmode="numeric">
+        <div class="fi-hint">숫자만 입력하시면 자동으로 포맷됩니다.</div>
+      </div>
+      <div class="fg">
+        <label class="lbl" for="f-grad">HI 졸업일 <span class="req">*</span></label>
+        <input type="date" class="fi" id="f-grad">
+        <div class="fi-hint">전원 날짜 또는 마지막 방문일을 선택해주세요.</div>
+      </div>
+    </div>
+
+    <!-- 혜택 안내 -->
+    <div class="card">
+      <div class="card-label">멤버스 혜택 안내</div>
+      <div style="font-size:13px;color:var(--text-2);margin-bottom:12px;line-height:1.55">
+        아래 혜택을 확인하시고 원하시는 항목에 체크해주세요.
+      </div>
+      <div class="benefit-list">
+        <label class="benefit-item" id="lb1" for="b1">
+          <input type="checkbox" id="b1">
+          <div class="bcheck"><span class="bcheck-icon">✓</span></div>
+          <div>
+            <div class="benefit-title">🎁 연 2회 회원 이벤트</div>
+            <div class="benefit-desc">4월, 12월 연 2회 회원 이벤트를 카카오톡으로 안내해드립니다.</div>
+          </div>
+        </label>
+        <label class="benefit-item" id="lb2" for="b2">
+          <input type="checkbox" id="b2">
+          <div class="bcheck"><span class="bcheck-icon">✓</span></div>
+          <div>
+            <div class="benefit-title">👫 지인 추천 리워드</div>
+            <div class="benefit-desc">지인을 추천해주시면 리워드를 드립니다. 카테고리별 1회 적용됩니다.</div>
+          </div>
+        </label>
+        <label class="benefit-item" id="lb3" for="b3">
+          <input type="checkbox" id="b3">
+          <div class="bcheck"><span class="bcheck-icon">✓</span></div>
+          <div>
+            <div class="benefit-title">📸 가족 사진 촬영</div>
+            <div class="benefit-desc">매월 마지막 수요일 가족 사진 촬영을 제공합니다. 예약: 02-3662-0403</div>
+          </div>
+        </label>
+        <label class="benefit-item" id="lb4" for="b4">
+          <input type="checkbox" id="b4">
+          <div class="bcheck"><span class="bcheck-icon">✓</span></div>
+          <div>
+            <div class="benefit-title">🍼 임신·출산 소식 공유</div>
+            <div class="benefit-desc">소중한 소식을 공유해주시면 월별 쿠폰과 산후 선물을 드립니다.</div>
+          </div>
+        </label>
+      </div>
+    </div>
+
+    <!-- 동의사항 -->
+    <div class="card">
+      <div class="card-label">동의사항</div>
+
+      <!-- 운영방침 -->
+      <div class="policy-link-wrap" style="margin-bottom:14px">
+        <a class="policy-link" href="https://hi-fertility.com/hi-memebers-subscription-policy" target="_blank" rel="noopener">
+          📋 HI Members 운영방침 열람하기
+        </a>
+      </div>
+
+      <div class="fg">
+        <label class="lbl">HI Members 가입 동의 <span class="req">*</span></label>
+        <label class="agree-row" id="agree-label" for="agree-chk">
+          <input type="checkbox" id="agree-chk">
+          <div class="agree-check"><span class="agree-check-icon">✓</span></div>
+          <div class="agree-text">운영방침을 확인하였으며 HI Members 회원 가입에 <strong>동의합니다</strong>. 제공된 연락처로 혜택 안내를 받을 수 있습니다.</div>
+        </label>
+      </div>
+
+      <hr class="sep">
+
+      <div class="fg">
+        <label class="lbl">비식별화 의료정보 제공 동의 <span class="req">*</span></label>
+        <div style="font-size:12px;color:var(--text-2);margin-bottom:8px;line-height:1.55">
+          임상 연구 및 서비스 개선을 위해 비식별화된 의료정보를 제공하는 것에 동의하십니까?
+        </div>
+        <div class="consent-opts">
+          <label class="consent-opt" id="med-agree-l" for="med-agree">
+            <input type="radio" name="medical" id="med-agree" value="agree">
+            동의합니다
+          </label>
+          <label class="consent-opt" id="med-disagree-l" for="med-disagree">
+            <input type="radio" name="medical" id="med-disagree" value="disagree">
+            동의하지 않습니다
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- 추가 문의 -->
+    <div class="card">
+      <div class="card-label">추가 문의</div>
+      <div class="fg">
+        <label class="lbl" for="f-inquiry">문의사항 <span style="font-weight:400;color:var(--text-2)">(선택)</span></label>
+        <textarea class="fi" id="f-inquiry" rows="3" placeholder="문의하실 내용을 자유롭게 적어주세요."></textarea>
+      </div>
+    </div>
+
+    <div class="err-banner" id="err-banner"></div>
+
+    <button type="button" class="submit-btn" id="submit-btn" onclick="submitForm()">가입 신청하기</button>
+    <div class="footer-note">
+      문의: 02-3662-0403<br>
+      <a href="https://hi-fertility.com/hi-memebers-subscription-policy" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;font-weight:600">운영방침 보기</a>
+    </div>
+  </div>
+
+  <!-- 이미 신청 -->
+  <div id="dup-screen" class="alt-screen">
+    <div class="alt-icon">📋</div>
+    <div class="alt-title">이미 신청하셨어요</div>
+    <div class="alt-desc">해당 연락처로 이미 멤버스 가입 신청이 완료되어 있습니다.<br><br>문의: 02-3662-0403</div>
+  </div>
+
+  <!-- 신청 완료 -->
+  <div id="success-screen" class="alt-screen">
+    <div class="alt-icon">🎉</div>
+    <div class="alt-title">가입 신청 완료!</div>
+    <div class="alt-desc">HI Members 가입 신청이 완료되었습니다.<br>확인 후 개별 연락드릴게요.</div>
+    <div class="summary-card" id="success-summary"></div>
+    <div style="margin-top:20px">
+      <a class="policy-link" href="https://hi-fertility.com/hi-memebers-subscription-policy" target="_blank" rel="noopener">
+        📋 운영방침 열람하기
+      </a>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+// ⚙️ Supabase 설정 — 아래 두 값을 채워주세요
+const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+
+const _db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// ── 화면 전환 ──────────────────────────────────────
+function showScreen(name) {
+  const loading = document.getElementById('loading-screen');
+  const form = document.getElementById('form-screen');
+  const dup = document.getElementById('dup-screen');
+  const suc = document.getElementById('success-screen');
+  loading.style.display = name === 'loading' ? 'flex' : 'none';
+  form.style.display = name === 'form' ? 'block' : 'none';
+  dup.classList.toggle('show', name === 'dup');
+  suc.classList.toggle('show', name === 'success');
+}
+
+// ── 토스트 ─────────────────────────────────────────
+function showToast(msg, dur = 2500) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), dur);
+}
+
+// ── 전화번호 포맷 ──────────────────────────────────
+function formatPhone(v) {
+  const d = v.replace(/\D/g, '').slice(0, 11);
+  if (d.length < 4) return d;
+  if (d.length < 8) return `${d.slice(0,3)}-${d.slice(3)}`;
+  return `${d.slice(0,3)}-${d.slice(3,7)}-${d.slice(7)}`;
+}
+
+// ── XSS 방어 ────────────────────────────────────────
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── 이벤트 바인딩 ──────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  // 혜택 체크박스
+  ['b1','b2','b3','b4'].forEach(id => {
+    const input = document.getElementById(id);
+    const label = document.getElementById('l' + id);
+    input.addEventListener('change', () => label.classList.toggle('on', input.checked));
+  });
+
+  // 가입 동의
+  const agreeInput = document.getElementById('agree-chk');
+  const agreeLabel = document.getElementById('agree-label');
+  agreeInput.addEventListener('change', () => agreeLabel.classList.toggle('on', agreeInput.checked));
+
+  // 의료정보 라디오
+  document.querySelectorAll('input[name="medical"]').forEach(r => {
+    r.addEventListener('change', () => {
+      document.getElementById('med-agree-l').classList.toggle('on', document.getElementById('med-agree').checked);
+      document.getElementById('med-disagree-l').classList.toggle('on', document.getElementById('med-disagree').checked);
+    });
+  });
+
+  // 전화번호 자동 포맷
+  const phoneInput = document.getElementById('f-phone');
+  phoneInput.addEventListener('input', () => {
+    const prev = phoneInput.value;
+    const next = formatPhone(prev);
+    const pos = phoneInput.selectionStart + (next.length - prev.length);
+    phoneInput.value = next;
+    try { phoneInput.setSelectionRange(pos, pos); } catch(_) {}
+  });
+
+  init();
+});
+
+async function init() {
+  showScreen('loading');
+  try {
+    await _db.from('members').select('id').limit(1);
+  } catch(_) {}
+  showScreen('form');
+}
+
+// ── 유효성 검사 ───────────────────────────────────
+function validate() {
+  const name = document.getElementById('f-name').value.trim();
+  const phone = document.getElementById('f-phone').value.trim();
+  const grad = document.getElementById('f-grad').value;
+  const agree = document.getElementById('agree-chk').checked;
+  const med = document.querySelector('input[name="medical"]:checked');
+
+  ['f-name','f-phone','f-grad'].forEach(id => document.getElementById(id).classList.remove('err'));
+
+  if (!name) { document.getElementById('f-name').classList.add('err'); return '이름을 입력해주세요.'; }
+  if (!phone || phone.replace(/\D/g,'').length < 10) { document.getElementById('f-phone').classList.add('err'); return '연락처를 올바르게 입력해주세요.'; }
+  if (!grad) { document.getElementById('f-grad').classList.add('err'); return 'HI 졸업일을 선택해주세요.'; }
+  if (!agree) return 'HI Members 가입에 동의해주세요.';
+  if (!med) return '비식별화 의료정보 제공 동의 여부를 선택해주세요.';
+  return null;
+}
+
+// ── 제출 ──────────────────────────────────────────
+async function submitForm() {
+  const errEl = document.getElementById('err-banner');
+  errEl.classList.remove('show');
+
+  const errMsg = validate();
+  if (errMsg) {
+    errEl.textContent = errMsg;
+    errEl.classList.add('show');
+    errEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  btn.textContent = '제출 중...';
+
+  const name = document.getElementById('f-name').value.trim();
+  const phone = document.getElementById('f-phone').value.trim();
+  const grad = document.getElementById('f-grad').value;
+  const med = document.querySelector('input[name="medical"]:checked').value;
+  const inquiry = document.getElementById('f-inquiry').value.trim();
+
+  try {
+    // 중복 확인
+    const { data: existing } = await _db.from('members').select('id').eq('phone', phone).maybeSingle();
+    if (existing) { showScreen('dup'); return; }
+
+    // 저장
+    const { error } = await _db.from('members').insert({
+      name, phone,
+      graduation_date: grad,
+      membership_agree: true,
+      benefit_1: document.getElementById('b1').checked,
+      benefit_2: document.getElementById('b2').checked,
+      benefit_3: document.getElementById('b3').checked,
+      benefit_4: document.getElementById('b4').checked,
+      medical_consent: med,
+      inquiry: inquiry || null,
+      status: 'pending',
+    });
+    if (error) throw error;
+
+    document.getElementById('success-summary').innerHTML = `
+      <div class="summary-row"><span class="summary-label">이름</span><span class="summary-value">${esc(name)}</span></div>
+      <div class="summary-row"><span class="summary-label">연락처</span><span class="summary-value">${esc(phone)}</span></div>
+      <div class="summary-row"><span class="summary-label">졸업일</span><span class="summary-value">${esc(grad)}</span></div>
+      <div class="summary-row"><span class="summary-label">의료정보 동의</span><span class="summary-value">${med === 'agree' ? '동의' : '미동의'}</span></div>
+    `;
+    showScreen('success');
+  } catch(e) {
+    console.error(e);
+    errEl.textContent = '신청 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
+    errEl.classList.add('show');
+    btn.disabled = false;
+    btn.textContent = '가입 신청하기';
+  }
+}
+</script>
+</body>
+</html>
