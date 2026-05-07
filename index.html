@@ -359,8 +359,8 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
 // ⚙️ Supabase 설정 — 아래 두 값을 채워주세요
-const SUPABASE_URL = 'YOUR_SUPABASE_URL';
-const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+const SUPABASE_URL = 'https://lqhkfpmhdplzwlmagihr.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxxaGtmcG1oZHBsendsbWFnaWhyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgxMTgzNTEsImV4cCI6MjA5MzY5NDM1MX0.Gp1jrN4uleYo5FAIR5Jh51RDpQOj_zqks4l-bGaGUQo';
 
 const _db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -435,7 +435,8 @@ document.addEventListener('DOMContentLoaded', () => {
 async function init() {
   showScreen('loading');
   try {
-    await _db.from('members').select('id').limit(1);
+    const timeout = new Promise(resolve => setTimeout(resolve, 5000));
+    await Promise.race([_db.from('members').select('id').limit(1), timeout]);
   } catch(_) {}
   showScreen('form');
 }
